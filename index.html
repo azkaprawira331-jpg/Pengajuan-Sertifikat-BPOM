@@ -1,0 +1,498 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>For naifa 💌</title>
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', sans-serif; }
+        
+        body {
+            background: linear-gradient(135deg, #ff9aa2, #ffb7b2);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            overflow: hidden;
+            position: relative;
+            padding: 20px;
+        }
+
+        /* --- EFEK LOVE JATUH --- */
+        .hearts-container {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            pointer-events: none; z-index: 0;
+        }
+        .heart {
+            position: absolute; top: -10%; color: white; font-size: 24px;
+            animation: fall linear infinite; opacity: 0.8;
+        }
+        @keyframes fall { to { transform: translateY(110vh) rotate(360deg); } }
+
+        /* --- GAYA HALAMAN --- */
+        .content-page { 
+            display: none; text-align: center; color: white; z-index: 5; opacity: 0; 
+            transition: 0.8s; padding: 20px; width: 100%; max-width: 400px;
+        }
+        .msg-text { font-size: 28px; font-weight: bold; margin-bottom: 15px; text-shadow: 2px 2px 4px rgba(0,0,0,0.2); }
+        .sub-msg-text { font-size: 18px; margin-bottom: 25px; line-height: 1.5; text-shadow: 1px 1px 2px rgba(0,0,0,0.2); }
+        
+        /* --- GAYA AMPLOP --- */
+        .envelope-wrapper-style { z-index: 10; cursor: pointer; display: flex; flex-direction: column; align-items: center; transition: 0.5s; }
+        .envelope {
+            width: 250px; height: 180px; background: #ff758c; border-radius: 5px;
+            position: relative; display: flex; justify-content: center; align-items: center;
+        }
+        .flap {
+            position: absolute; top: 0; width: 0; height: 0; border-left: 125px solid transparent;
+            border-right: 125px solid transparent; border-top: 90px solid #ff4d6d; transition: 0.6s;
+            transform-origin: top; z-index: 2;
+        }
+        .envelope.open .flap { transform: rotateX(180deg); }
+        .heart-seal { font-size: 50px; z-index: 3; transition: transform 0.3s; }
+        .envelope:hover .heart-seal { transform: scale(1.1); }
+        .title-env { color: white; font-size: 24px; font-weight: bold; margin-bottom: 20px; text-shadow: 1px 1px 2px rgba(0,0,0,0.2); }
+
+        /* --- INPUT --- */
+        .input-style { 
+            width: 100%; padding: 12px 20px; border: 2px solid rgba(255, 255, 255, 0.7); 
+            background: rgba(255, 255, 255, 0.2); color: white; font-weight: bold;
+            border-radius: 50px; margin: 10px 0 15px 0; outline: none; 
+            text-align: center; font-size: 16px; transition: all 0.3s;
+        }
+        .input-style::placeholder { color: rgba(255, 255, 255, 0.6); font-weight: normal; }
+        .input-style:focus { border-color: white; background: rgba(255, 255, 255, 0.3); }
+        #error-msg { color: #fff; font-size: 14px; margin-bottom: 15px; display: none; font-weight: bold; text-shadow: 1px 1px 2px rgba(0,0,0,0.3); }
+
+        /* --- DESAIN TOMBOL --- */
+        .btn-style { 
+            padding: 12px 30px; border-radius: 25px; border: none; 
+            background: white; color: #ff4d6d; font-weight: bold; font-size: 16px;
+            cursor: pointer; box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+            transition: transform 0.2s, background-color 0.3s, color 0.3s;
+        }
+        .btn-style:active { transform: scale(0.95); }
+        
+        #btn-giveup { background: #ff4d6d; color: white; display: none; margin-left: 10px; }
+        #btn-no { background: #ff4d6d; color: white; position: relative; transition: all 0.2s ease; }
+
+        /* --- LAYOUT TOMBOL PROPOSAL --- */
+        .proposal-container {
+            display: flex; justify-content: center; align-items: center; gap: 30px;
+            margin-top: 40px; min-height: 120px; position: relative; width: 100%;
+        }
+        #btn-yeah { background: #2a9d8f; color: white; transition: all 0.3s ease; z-index: 10; }
+        #btn-hell-nah { background: #e63946; color: white; transition: all 0.2s ease; z-index: 10; }
+
+        /* --- ANIMASI --- */
+        .reveal-animation { 
+            display: none; font-weight: bold; color: white; margin-top: 25px; font-size: 24px; 
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.2);
+            animation: bounceIn 0.8s cubic-bezier(0.175, 0.885, 0.32, 1.275) both; 
+        }
+        @keyframes bounceIn {
+            0% { opacity: 0; transform: scale3d(0.3, 0.3, 0.3); }
+            50% { opacity: 1; transform: scale3d(1.15, 1.15, 1.15); }
+            100% { opacity: 1; transform: scale3d(1, 1, 1); }
+        }
+
+        @keyframes flyAway {
+            0% { transform: translate(0, 0) scale(1); }
+            20% { transform: translate(100px, -150px) rotate(45deg); }
+            40% { transform: translate(-200px, 100px) rotate(-90deg); }
+            60% { transform: translate(300px, 300px) rotate(180deg); }
+            100% { transform: translate(1000px, -1000px) scale(0); opacity: 0; }
+        }
+        .fly-out { animation: flyAway 1s forwards ease-in-out; pointer-events: none; }
+
+        /* ANIMASI AMPLOP TERBANG KE ATAS */
+        @keyframes envelopeFlyUp {
+            0% { transform: translateY(0) scale(1); opacity: 1; }
+            100% { transform: translateY(-100vh) scale(0.5); opacity: 0; }
+        }
+        .env-fly-away { animation: envelopeFlyUp 1.2s forwards ease-in-out; }
+    </style>
+</head>
+<body>
+
+    <div class="hearts-container" id="hearts-container"></div>
+
+    <!-- HALAMAN 1: AMPLOP PEMBUKA -->
+    <div id="envelope-wrapper" class="envelope-wrapper-style">
+        <div class="title-env">For nanai 💌</div>
+        <div class="envelope" id="envelope">
+            <div class="flap"></div>
+            <div class="heart-seal">💓</div>
+        </div>
+    </div>
+
+    <!-- HALAMAN 2: TEKS PEMBUKA -->
+    <div id="page-two" class="content-page">
+        <div class="msg-text">Haii naii! ✨</div>
+        <p class="sub-msg-text">ekhem,jadi aku pen nanya,tapi ada tebak tebakan dulu nii</p>
+        <button class="btn-style" onclick="goToRiddlePage()">apatuu?</button>
+    </div>
+
+    <!-- HALAMAN 3: TEBAK-TEBAKAN -->
+    <div id="page-riddle" class="content-page">
+        <div class="msg-text">ikan ikan apa yang lucuu?</div>
+        <div style="max-width: 300px; margin: 0 auto;">
+            <input type="text" id="answer-input" placeholder="Ketik jawabanmu di sini..." class="input-style" autocomplete="off">
+        </div>
+        <p id="error-msg">Tetottt❌❌</p>
+        
+        <div style="display: flex; justify-content: center; margin-top: 10px;">
+            <button class="btn-style" id="btn-submit" onclick="checkAnswer()">Kirim</button>
+            <button class="btn-style" id="btn-giveup" onclick="giveUp()">nyerahhh?</button>
+        </div>
+
+        <div id="revealed-answer" class="reveal-animation">Jawabannya: i kan kamuuu 🥰</div>
+    </div>
+
+    <!-- HALAMAN 4: PERMINTAAN MAAF -->
+    <div id="page-apology" class="content-page">
+        <div class="msg-text">eh eh,garing ya?dimaafin ga?</div>
+        
+        <div style="display: flex; gap: 15px; justify-content: center; align-items: center; min-height: 80px; margin-top: 20px;">
+            <button class="btn-style" id="btn-yes" onclick="goToFinalPage()">eh dimaafin dongg</button>
+            <button class="btn-style" id="btn-no" onclick="handleNoButton()">g</button>
+        </div>
+    </div>
+
+    <!-- HALAMAN 5: MAKACII -->
+    <div id="page-final" class="content-page">
+        <div class="msg-text" style="font-size: 36px; margin-bottom: 20px;">ehh ehh dimaafin</div>
+        <p class="sub-msg-text" style="font-size: 20px; margin-bottom: 30px;">oiyaa aku mau ngasi tau sesuatu...</p>
+        <button class="btn-style" onclick="goToWeirdoPage()">Lanjut</button>
+    </div>
+
+    <!-- HALAMAN 6: WEIRDO TEXT -->
+    <div id="page-weirdo" class="content-page">
+        <p class="msg-text" style="font-size: 24px; font-weight: 500; font-style: italic; line-height: 1.6; margin-bottom: 35px;">
+            daripada omdo,mending aku iniin sekarang dehhhh
+        </p>
+        <button class="btn-style" onclick="goToConfessPage()">????</button>
+    </div>
+
+    <!-- HALAMAN 7: CONFESS PAGE -->
+    <div id="page-confess" class="content-page">
+        <div class="msg-text" style="font-size: 26px; margin-bottom: 10px;">Jadiiiii</div>
+        <p class="sub-msg-text" style="font-size: 18px; font-style: italic; opacity: 0.9; margin-bottom: 35px;">jujur takut deh..</p>
+        <button class="btn-style" onclick="goToRelationshipPage()">gc anjir lama banget</button>
+    </div>
+
+    <!-- HALAMAN 8: PROPOSAL PAGE -->
+    <div id="page-relationship" class="content-page">
+        <div class="msg-text" style="font-size: 26px; margin-bottom: 10px; line-height: 1.4;">
+            yukk bpom yukk,aku yang daftarin niii
+        </div>
+        
+        <div class="proposal-container" id="proposal-container">
+            <button class="btn-style" id="btn-ehh yukk" onclick="goToYippiePage()">ehh yukk</button>
+            <button class="btn-style" id="btn-engga ah" onclick="handleHellNah()">engga ah</button>
+        </div>
+    </div>
+
+    <!-- HALAMAN 9: YIPPIE PAGE -->
+    <div id="page-yippie" class="content-page">
+        <div class="msg-text" style="font-size: 40px; margin-bottom: 15px;">EGILAAAAAAAA</div>
+        <p class="sub-msg-text" style="font-size: 20px;">aku tau kok kamu pasti mau (gaada opsi lain jir)</p>
+        <button class="btn-style" onclick="goToClosingPage()">Lanjut</button>
+    </div>
+
+    <!-- HALAMAN 10: CLOSING PAGE -->
+    <div id="page-closing" class="content-page">
+        <div class="msg-text" style="font-size: 26px; margin-bottom: 15px; line-height: 1.4;">
+            haha.. aku harap kamu ga ilfeel yh
+        </div>
+        <p class="sub-msg-text" style="font-size: 18px; opacity: 0.9;">
+            
+        </p>
+        <button class="btn-style" onclick="goToRestartPage()">Lanjut</button>
+    </div>
+
+    <!-- HALAMAN 11: RESTART HP PAGE -->
+    <div id="page-restart" class="content-page">
+        <div class="msg-text" style="font-size: 26px; margin-bottom: 15px; line-height: 1.4;">
+            oiyaa, kalau kamu liat inii
+        </div>
+        <p class="sub-msg-text" style="font-size: 18px; margin-bottom: 15px;">
+            berarti aku lagi restart hp yaa hehe, gugup bgt jir..
+        </p>
+        <p class="sub-msg-text" style="font-size: 16px; opacity: 0.8; font-style: italic;">
+            jadii kalau kamu chat.. mungkin aku bakal jawab 1-3 jam lg
+        </p>
+        <button class="btn-style" onclick="goToCringePage()">okay?</button>
+    </div>
+
+    <!-- HALAMAN 12: PASRAH/CRINGE PAGE -->
+    <div id="page-cringe" class="content-page">
+        <div class="msg-text" style="font-size: 24px; margin-bottom: 15px; line-height: 1.4; font-weight: normal;">
+            udaa si itu aja, maaf ya kalo menurut kamu ini.. aneh? atau cringe gitu
+        </div>
+        <p class="sub-msg-text" style="font-size: 18px; margin-bottom: 20px; font-weight: bold;">
+            aku.. tunggu jawaban cius kamu ya di chat
+        </p>
+        <p class="sub-msg-text" style="font-size: 16px; opacity: 0.8; font-style: italic;">
+            uhmm, ya.. udah.
+        </p>
+        <button class="btn-style" onclick="goToFinalEnvelopePage()">.......</button>
+    </div>
+
+    <!-- HALAMAN 13: AMPLOP PENUTUP (NEW) -->
+    <div id="page-final-envelope" class="content-page" style="max-width: 100%;">
+        <div id="final-envelope-wrapper" class="envelope-wrapper-style">
+            <div class="title-env" id="final-env-title">Simpan surat? 📩</div>
+            <!-- Amplop diset kelas 'open' dari awal agar posisinya terbuka -->
+            <div class="envelope open" id="final-envelope">
+                <div class="flap"></div>
+                <div class="heart-seal">💔</div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const envelope = document.getElementById('envelope');
+        const envWrapper = document.getElementById('envelope-wrapper');
+        const pageTwo = document.getElementById('page-two');
+        const pageRiddle = document.getElementById('page-riddle');
+        const pageApology = document.getElementById('page-apology');
+        const pageFinal = document.getElementById('page-final');
+        const pageWeirdo = document.getElementById('page-weirdo');
+        const pageConfess = document.getElementById('page-confess');
+        const pageRelationship = document.getElementById('page-relationship');
+        const pageYippie = document.getElementById('page-yippie');
+        const pageClosing = document.getElementById('page-closing');
+        const pageRestart = document.getElementById('page-restart');
+        const pageCringe = document.getElementById('page-cringe');
+        const pageFinalEnvelope = document.getElementById('page-final-envelope');
+        const finalEnvelope = document.getElementById('final-envelope');
+        const finalEnvWrapper = document.getElementById('final-envelope-wrapper');
+        const finalEnvTitle = document.getElementById('final-env-title');
+        const heartsContainer = document.getElementById('hearts-container');
+        
+        let wrongCount = 0;
+        let noClickCount = 0;
+        let hellNahClickCount = 0;
+
+        function createHearts() {
+            const symbols = ['💓', '💞', '💕', '💖', '💗', '❤'];
+            for (let i = 0; i < 40; i++) {
+                const h = document.createElement('div');
+                h.className = 'heart';
+                h.innerHTML = symbols[Math.floor(Math.random() * symbols.length)];
+                h.style.left = Math.random() * 100 + 'vw';
+                h.style.animationDuration = (Math.random() * 3 + 2.5) + 's';
+                h.style.animationDelay = (Math.random() * 3) + 's';
+                heartsContainer.appendChild(h);
+            }
+        }
+
+        envelope.addEventListener('click', () => {
+            envelope.classList.add('open');
+            createHearts();
+            setTimeout(() => {
+                envWrapper.style.opacity = '0';
+                setTimeout(() => {
+                    envWrapper.style.display = 'none';
+                    pageTwo.style.display = 'block';
+                    setTimeout(() => pageTwo.style.opacity = '1', 50);
+                }, 500);
+            }, 800);
+        });
+
+        function goToRiddlePage() {
+            pageTwo.style.opacity = '0';
+            setTimeout(() => {
+                pageTwo.style.display = 'none';
+                pageRiddle.style.display = 'block';
+                setTimeout(() => pageRiddle.style.opacity = '1', 50);
+            }, 500);
+        }
+
+        function checkAnswer() {
+            const answerInput = document.getElementById('answer-input');
+            const errorMsg = document.getElementById('error-msg');
+            const userAnswer = answerInput.value.toLowerCase().trim();
+
+            if (userAnswer === "i kan kamu" || userAnswer === "i kan kamuuu") {
+                errorMsg.style.display = 'none';
+                goToApologyPage();
+            } else {
+                wrongCount++;
+                errorMsg.style.display = 'block';
+                if (wrongCount >= 2) {
+                    document.getElementById('btn-giveup').style.display = 'inline-block';
+                }
+            }
+        }
+
+        function giveUp() {
+            const answerInput = document.getElementById('answer-input');
+            document.getElementById('error-msg').style.display = 'none';
+            document.getElementById('revealed-answer').style.display = 'block';
+            document.getElementById('btn-giveup').style.display = 'none';
+            
+            answerInput.value = "i kan kamuuu";
+            answerInput.disabled = true;
+
+            const btnSubmit = document.getElementById('btn-submit');
+            btnSubmit.innerText = "Lanjut";
+            btnSubmit.onclick = goToApologyPage;
+        }
+
+        function goToApologyPage() {
+            pageRiddle.style.opacity = '0';
+            setTimeout(() => {
+                pageRiddle.style.display = 'none';
+                pageApology.style.display = 'block';
+                setTimeout(() => pageApology.style.opacity = '1', 50);
+            }, 500);
+        }
+
+        function handleNoButton() {
+            noClickCount++;
+            const btnNo = document.getElementById('btn-no');
+            if (noClickCount === 1) { btnNo.innerText = "cius nih ga dimaapin?"; } 
+            else if (noClickCount === 2) { btnNo.innerText = "mending milih satunya gasii"; } 
+            else if (noClickCount >= 3) {
+                btnNo.classList.add('fly-out');
+                setTimeout(() => { btnNo.style.display = 'none'; }, 1000);
+            }
+        }
+
+        function goToFinalPage() {
+            pageApology.style.opacity = '0';
+            setTimeout(() => {
+                pageApology.style.display = 'none';
+                pageFinal.style.display = 'block';
+                setTimeout(() => { pageFinal.style.opacity = '1'; }, 50);
+            }, 500);
+        }
+
+        function goToWeirdoPage() {
+            pageFinal.style.opacity = '0';
+            setTimeout(() => {
+                pageFinal.style.display = 'none';
+                pageWeirdo.style.display = 'block';
+                setTimeout(() => { pageWeirdo.style.opacity = '1'; }, 50);
+            }, 500);
+        }
+
+        function goToConfessPage() {
+            pageWeirdo.style.opacity = '0';
+            setTimeout(() => {
+                pageWeirdo.style.display = 'none';
+                pageConfess.style.display = 'block';
+                setTimeout(() => { pageConfess.style.opacity = '1'; }, 50);
+            }, 500);
+        }
+
+        function goToRelationshipPage() {
+            pageConfess.style.opacity = '0';
+            setTimeout(() => {
+                pageConfess.style.display = 'none';
+                heartsContainer.innerHTML = ''; 
+                pageRelationship.style.display = 'block';
+                setTimeout(() => { pageRelationship.style.opacity = '1'; }, 50);
+            }, 500);
+        }
+
+        function handleHellNah() {
+            hellNahClickCount++;
+            const btnNo = document.getElementById('btn-hell-nah');
+            const btnYeah = document.getElementById('btn-yeah');
+
+            btnNo.style.position = 'fixed';
+            const randomX = Math.floor(Math.random() * (window.innerWidth - 120));
+            const randomY = Math.floor(Math.random() * (window.innerHeight - 60));
+
+            btnNo.style.left = `${randomX}px`;
+            btnNo.style.top = `${randomY}px`;
+
+            if (hellNahClickCount === 1) {
+                btnNo.innerText = "are you sure??";
+                btnNo.style.fontSize = "13px";
+                btnNo.style.padding = "8px 20px";
+            } else if (hellNahClickCount === 2) {
+                btnNo.innerText = "come on man";
+                btnNo.style.fontSize = "11px";
+                btnNo.style.padding = "6px 15px";
+            } else if (hellNahClickCount === 3) {
+                btnNo.innerText = "r you serious?";
+                btnNo.style.fontSize = "11px";
+                btnNo.style.padding = "6px 15px";
+            } else if (hellNahClickCount >= 4) {
+                btnNo.style.display = 'none';
+                btnYeah.style.transform = "scale(2.5)";
+                btnYeah.innerText = "yeah! ❤";
+            }
+        }
+
+        function goToYippiePage() {
+            pageRelationship.style.opacity = '0';
+            setTimeout(() => {
+                pageRelationship.style.display = 'none';
+                pageYippie.style.display = 'block';
+                createHearts(); 
+                setTimeout(() => { pageYippie.style.opacity = '1'; }, 50);
+            }, 500);
+        }
+
+        function goToClosingPage() {
+            heartsContainer.innerHTML = ''; 
+            pageYippie.style.opacity = '0';
+            setTimeout(() => {
+                pageYippie.style.display = 'none';
+                pageClosing.style.display = 'block';
+                setTimeout(() => { pageClosing.style.opacity = '1'; }, 50);
+            }, 500);
+        }
+
+        function goToRestartPage() {
+            pageClosing.style.opacity = '0';
+            setTimeout(() => {
+                pageClosing.style.display = 'none';
+                pageRestart.style.display = 'block';
+                setTimeout(() => { pageRestart.style.opacity = '1'; }, 50);
+            }, 500);
+        }
+
+        function goToCringePage() {
+            pageRestart.style.opacity = '0';
+            setTimeout(() => {
+                pageRestart.style.display = 'none';
+                pageCringe.style.display = 'block';
+                setTimeout(() => { pageCringe.style.opacity = '1'; }, 50);
+            }, 500);
+        }
+
+        // --- TRANSISI KE HALAMAN AMPLOP AKHIR (NEW) ---
+        function goToFinalEnvelopePage() {
+            pageCringe.style.opacity = '0';
+            setTimeout(() => {
+                pageCringe.style.display = 'none';
+                pageFinalEnvelope.style.display = 'block';
+                setTimeout(() => { pageFinalEnvelope.style.opacity = '1'; }, 50);
+            }, 500);
+        }
+
+        // --- LOGIK CLOSING AMPLOP AKHIR ---
+        finalEnvelope.addEventListener('click', () => {
+            // Tutup amplop dengan menghapus kelas 'open'
+            finalEnvelope.classList.remove('open');
+            finalEnvTitle.style.opacity = '0'; // Sembunyikan judul teksnya pelan-pelan
+            
+            // Tunggu animasi tutup lipatan selesai (600ms), lalu terbangkan amplopnya pergi
+            setTimeout(() => {
+                finalEnvWrapper.classList.add('env-fly-away');
+                
+                // Setelah amplop meluncur pergi dari layar, munculkan alert penutup
+                setTimeout(() => {
+                    
+                }, 1000);
+            }, 600);
+        });
+    </script>
+</body>
+</html>
